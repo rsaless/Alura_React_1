@@ -7,20 +7,45 @@ class App extends Component {
 
   constructor(){
     super();
-    this.state = { lista: [] };
+    this.state = { 
+      lista: [],
+      nome:'',
+      email:'',
+      senha:''
+    };
   }
 
   componentWillMount(){
     $.ajax({
       url:"http://localhost:8080/api/autores",
       dataType: 'json',
-      success: (resposta) => this.state = {lista:resposta}
+      success: (resposta) => this.setState({lista:resposta})
     });
   }
 
   componentDidMount(){
     
   }
+
+  enviaForm = (evento) => {
+    evento.preventDefault();
+    $.ajax({
+      url:'http://localhost:8080/api/autores',
+      contentType: 'application/json',
+      dataType:'json',
+      type:'post',
+      data: JSON.stringify({nome: this.state.nome, email: this.state.email, senha: this.state.senha}),
+      success: (resposta) => {
+        console.log("enviado com sucesso");
+        this.setState({lista: resposta, nome: '', email: '', senha:''});
+      },
+      error: (resposta) => {console.log("erro");}
+    });
+  }
+
+  setNome = (evento) => this.setState({nome: evento.target.value});
+  setEmail = (evento) => this.setState({email: evento.target.value});
+  setSenha = (evento) => this.setState({senha: evento.target.value});
 
   render(){
     return (
@@ -70,15 +95,15 @@ class App extends Component {
                     </tr>
                   </thead>
                   <tbody>
-                    {
+                    {this.state.lista.map(autor => {
                       this.state.lista.map(autor => {
                         return (
-                          <tr>
+                        <tr key={autor.id}>
                             <td>{autor.nome}</td>
                             <td>{autor.email}</td>
                           </tr>
                         );
-                      })
+                    })}
                     }
                   </tbody>
                 </table> 
