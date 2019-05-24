@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import $ from 'jquery';
 import './css/pure-min.css';
 import './css/side-menu.css';
 
@@ -6,11 +7,19 @@ class App extends Component {
 
   constructor(){
     super();
-    this.state = { 
-      lista: [
-        {nome: 'Rafael', email: 'rspavarina@gmail.com', senha:'123456'}
-      ] 
-    };
+    this.state = { lista: [] };
+  }
+
+  componentWillMount(){
+    $.ajax({
+      url:"http://localhost:8080/api/autores",
+      dataType: 'json',
+      success: (resposta) => this.state = {lista:resposta}
+    });
+  }
+
+  componentDidMount(){
+    
   }
 
   render(){
@@ -35,11 +44,11 @@ class App extends Component {
                 <form className="pure-form pure-form-aligned">
                   <div className="pure-control-group">
                     <label htmlFor="nome">Nome</label> 
-                    <input id="nome" type="text" name="nome" value=""  />                  
+                    <input id="nome" type="text" name="nome" />                  
                   </div>
                   <div className="pure-control-group">
                     <label htmlFor="email">Email</label> 
-                    <input id="email" type="email" name="email" value=""  />                  
+                    <input id="email" type="email" name="email" />                  
                   </div>
                   <div className="pure-control-group">
                     <label htmlFor="senha">Senha</label> 
