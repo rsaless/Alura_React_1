@@ -3,6 +3,7 @@ import $ from 'jquery';
 import PubSub from 'pubsub-js';
 import InputCustomizado from './components/InputCustomizado';
 import BotaoSubmitCustomizado from './components/BotaoSubmitCustomizado';
+import TratadorErros from './TratadorErros';
 
 class FormularioAutor extends Component {
 
@@ -18,17 +19,24 @@ class FormularioAutor extends Component {
     enviaForm = (evento) => {
         evento.preventDefault();
         $.ajax({
-          url:'http://localhost:8080/api/autores',
-          contentType: 'application/json',
-          dataType:'json',
-          type:'post',
-          data: JSON.stringify({nome: this.state.nome, email: this.state.email, senha: this.state.senha}),
-          success: (novaLista) => {
-            console.log("enviado com sucesso");
-            this.setState({nome: '', email: '', senha:''});
-            PubSub.publish("atualiza-lista-autores",novaLista);
-          },
-          error: (resposta) => {console.log("erro");}
+            url:'http://localhost:8080/api/autores',
+            contentType: 'application/json',
+            dataType:'json',
+            type:'post',
+            data: JSON.stringify({nome: this.state.nome, email: this.state.email, senha: this.state.senha}),
+            success: (novaLista) => {
+                console.log("enviado com sucesso");
+                PubSub.publish("atualiza-lista-autores",novaLista);
+                this.setState({nome: '', email: '', senha:''});
+            },
+            error: (resposta) => {
+                if (resposta.status === 400) {
+                    new TratadorErros().publicaErros(resposta.responseJSON);
+                }
+            },
+            beforeSend: () => {
+                PubSub.publish("limpa-erros",{});
+            }
         });
     }
     
